@@ -82,6 +82,11 @@ func (c *GameClient) SigninPlayerHandler(msg *proto.Envelope) {
 	c.playerData.sceneData = res.Player
 	time_helper.SetTimeOffsetMs(res.ServerTime - res.ClientTime)
 
+	if res.SceneServiceAppId == "" {
+		serviceLog.Error("cli[%d] 无效 scene appId  \n", c.userIdx)
+		panic("无效 scene appId")
+	}
+
 	c.EnterMap()
 
 }

@@ -37,7 +37,7 @@ func main() {
 			cli.Run()
 			wg.Done()
 		}(i)
-		time.Sleep(time.Millisecond * 300)
+		time.Sleep(time.Millisecond * 200)
 	}
 	wg.Wait()
 }

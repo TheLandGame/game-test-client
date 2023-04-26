@@ -131,7 +131,7 @@ func (m *MoveModel) getCurMoveStep(curMs int64) *proto.EntityMoveStep {
 }
 
 func (m *MoveModel) SendMoveMsg(curMs int64) {
-	if m.targetPos == nil || curMs-m.preSendMsgMs < 300 {
+	if m.targetPos == nil || curMs-m.preSendMsgMs < 500 {
 		return
 	}
 

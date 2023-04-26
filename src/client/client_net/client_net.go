@@ -58,7 +58,7 @@ func (c *ClientNet) connect() error {
 		return err
 	}
 	c.wcConnect = conn
-	serviceLog.Info("userIdx[%d] websocket connect success", c.userId)
+	// serviceLog.Info("userIdx[%d] websocket connect success", c.userId)
 	return nil
 }
 
@@ -101,11 +101,14 @@ func (c *ClientNet) Send(msg *proto.Envelope) {
 }
 
 func (c *ClientNet) onSendMsg(msg *proto.Envelope) {
-	if msg.Type == proto.EnvelopeType_Ping {
-		return
-	}
+	// if msg.Type == proto.EnvelopeType_Ping {
+	// 	return
+	// }
 
 	// serviceLog.Debug("cli[%d] send msg [%v], seqId[%d]", c.userId, msg.Type, msg.SeqId)
+	if c.userId != 20000 {
+		return
+	}
 
 	c.reqMsgRecord.Store(msg.SeqId, &msg_record.MsgRecord{
 		CreateAt: time_helper.NowUTCMill(),
