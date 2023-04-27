@@ -62,6 +62,7 @@ func (c *GameClient) QueryPlayerHandler(msg *proto.Envelope) {
 func (c *GameClient) CreatePlayerHandler(msg *proto.Envelope) {
 	if msg.ErrorMessage != "" {
 		serviceLog.Error("cli[%d] msg[%v] %s \n", c.userIdx, msg.Type, msg.ErrorMessage)
+		c.stop()
 		return
 	}
 
@@ -96,6 +97,7 @@ func (c *GameClient) EnterMapHandler(msg *proto.Envelope) {
 	if msg.ErrorMessage != "" {
 		serviceLog.Error("cli[%d] msg[%v] %s \n", c.userIdx, msg.Type, msg.ErrorMessage)
 		c.stop()
+		return
 	}
 
 	res := msg.GetEnterMapResponse()
