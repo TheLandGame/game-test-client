@@ -45,6 +45,9 @@ func (c *ClientNet) NextSeqId() int32 {
 }
 
 func (c *ClientNet) Stop() {
+	if c.wcConnect == nil {
+		return
+	}
 	c.wcConnect.Close()
 	c.wcConnect = nil
 }
