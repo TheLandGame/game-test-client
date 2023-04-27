@@ -33,6 +33,7 @@ type GameClient struct {
 	net       client_net.ClientNet
 	pingModel client_ping.ClientPing
 	client_ai.ClientAiModel
+	isStop bool
 
 	userIdx int64
 	token   string
@@ -105,8 +106,15 @@ func (c *GameClient) start() {
 	}
 	c.QueryUser()
 }
+func (c *GameClient) stop() {
+	c.isStop = true
+	c.net.Stop()
+}
 
 func (c *GameClient) tick(curMs int64) {
+	if c.isStop {
+		return
+	}
 	c.readMs()
 	c.pingTick(curMs)
 	c.logicTick(curMs)

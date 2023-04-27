@@ -12,22 +12,22 @@ import (
 )
 
 func main() {
-
-	agentUrl := os.Getenv("AGENT_URL")
-
-	clientNum, err := cast.ToIntE(os.Getenv("CLIENT_NUM"))
-	if err != nil {
-		panic(err)
-	}
-
 	clientIdxBegin, err := cast.ToIntE(os.Getenv("CLIENT_IDX_BEGIN"))
 	if err != nil {
 		panic(err)
 	}
+	serviceLog.Init(int64(clientIdxBegin), true)
 
 	testModel := os.Getenv("TEST_MODE")
-
-	serviceLog.Init(int64(clientIdxBegin), true)
+	agentUrl := os.Getenv("AGENT_URL")
+	clientNum, err := cast.ToIntE(os.Getenv("CLIENT_NUM"))
+	if err != nil {
+		panic(err)
+	}
+	addCliCdMs := cast.ToInt(os.Getenv("ADD_CLIENT_CD_MS"))
+	if addCliCdMs <= 0 {
+		addCliCdMs = 200
+	}
 
 	wg := new(sync.WaitGroup)
 	for i := 0; i < clientNum; i++ {
@@ -37,7 +37,7 @@ func main() {
 			cli.Run()
 			wg.Done()
 		}(i)
-		time.Sleep(time.Millisecond * 200)
+		time.Sleep(time.Millisecond * time.Duration(addCliCdMs))
 	}
 	wg.Wait()
 }

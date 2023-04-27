@@ -75,7 +75,8 @@ func (c *GameClient) CreatePlayerHandler(msg *proto.Envelope) {
 func (c *GameClient) SigninPlayerHandler(msg *proto.Envelope) {
 	if msg.ErrorMessage != "" {
 		serviceLog.Error("cli[%d] msg[%v] %s \n", c.userIdx, msg.Type, msg.ErrorMessage)
-		panic(msg.ErrorMessage)
+		c.stop()
+		return
 	}
 
 	res := msg.GetSigninPlayerResponse()
@@ -84,7 +85,7 @@ func (c *GameClient) SigninPlayerHandler(msg *proto.Envelope) {
 
 	if res.SceneServiceAppId == "" {
 		serviceLog.Error("cli[%d] 无效 scene appId  \n", c.userIdx)
-		panic("无效 scene appId")
+		c.stop()
 	}
 
 	c.EnterMap()
@@ -94,7 +95,7 @@ func (c *GameClient) SigninPlayerHandler(msg *proto.Envelope) {
 func (c *GameClient) EnterMapHandler(msg *proto.Envelope) {
 	if msg.ErrorMessage != "" {
 		serviceLog.Error("cli[%d] msg[%v] %s \n", c.userIdx, msg.Type, msg.ErrorMessage)
-		panic(msg.ErrorMessage)
+		c.stop()
 	}
 
 	res := msg.GetEnterMapResponse()

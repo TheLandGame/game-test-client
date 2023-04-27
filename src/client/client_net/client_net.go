@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"game-message-core/proto"
 	"sync"
+	"time"
 
 	"github.com/Meland-Inc/meland-client/src/client/msg_record"
 	"github.com/Meland-Inc/meland-client/src/common/serviceLog"
@@ -43,11 +44,20 @@ func (c *ClientNet) NextSeqId() int32 {
 	return c.msgSeqId
 }
 
+func (c *ClientNet) Stop() {
+	c.wcConnect.Close()
+	c.wcConnect = nil
+}
 func (c *ClientNet) Start() {
-	if err := c.connect(); err != nil {
-		panic(err)
+	for {
+		err := c.connect()
+		if err == nil {
+			c.run()
+			return
+		}
+		serviceLog.Error("userIdx[%d] websocket connect failed  err: %v", c.userId, err.Error())
+		time.Sleep(time.Millisecond * 200)
 	}
-	c.run()
 }
 
 func (c *ClientNet) connect() error {
@@ -58,7 +68,7 @@ func (c *ClientNet) connect() error {
 		return err
 	}
 	c.wcConnect = conn
-	// serviceLog.Info("userIdx[%d] websocket connect success", c.userId)
+	serviceLog.Info("userIdx[%d] websocket connect success", c.userId)
 	return nil
 }
 
@@ -67,7 +77,10 @@ func (c *ClientNet) run() {
 		for {
 			_, data, err := c.wcConnect.ReadMessage()
 			if err != nil {
-				panic(err)
+				serviceLog.Error("userIdx[%d] websocket ReadMessage failed  err: %v", c.userId, err.Error())
+				// panic(err)
+				c.Stop()
+				return
 			}
 
 			c.onData(data)
@@ -78,7 +91,8 @@ func (c *ClientNet) run() {
 func (c *ClientNet) onData(data []byte) {
 	msg, err := net_util.UnMarshalProtoMessage(data)
 	if err != nil {
-		panic(err)
+		serviceLog.Error(err.Error())
+		return
 	}
 
 	c.PrintMsgUsedMs(msg)
@@ -86,6 +100,10 @@ func (c *ClientNet) onData(data []byte) {
 }
 
 func (c *ClientNet) Send(msg *proto.Envelope) {
+	if c.wcConnect == nil {
+		return
+	}
+
 	msg.SeqId = c.NextSeqId()
 	payload, err := net_util.MarshalProtoMessage(msg)
 	if err != nil {
@@ -96,7 +114,8 @@ func (c *ClientNet) Send(msg *proto.Envelope) {
 	c.onSendMsg(msg)
 	err = c.wcConnect.WriteMessage(websocket.BinaryMessage, payload)
 	if err != nil {
-		panic(err)
+		// panic(err)
+		serviceLog.Error("userIdx[%d]  WriteMessage ~_~ ~_~ failed  err: %v", c.userId, err.Error())
 	}
 }
 
@@ -106,7 +125,7 @@ func (c *ClientNet) onSendMsg(msg *proto.Envelope) {
 	// }
 
 	// serviceLog.Debug("cli[%d] send msg [%v], seqId[%d]", c.userId, msg.Type, msg.SeqId)
-	if c.userId != 20000 {
+	if c.userId%10000 != 0 {
 		return
 	}
 
@@ -117,7 +136,7 @@ func (c *ClientNet) onSendMsg(msg *proto.Envelope) {
 }
 
 func (c *ClientNet) PrintMsgUsedMs(respMsg *proto.Envelope) {
-	if c.userId != 20000 {
+	if c.userId%10000 != 0 {
 		return
 	}
 
