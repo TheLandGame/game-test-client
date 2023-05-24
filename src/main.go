@@ -1,18 +1,43 @@
 package main
 
 import (
+	"fmt"
+	"os"
+	"sync"
 	"time"
 
 	"github.com/Meland-Inc/meland-client/src/client"
+	"github.com/Meland-Inc/meland-client/src/common/serviceLog"
+	"github.com/spf13/cast"
 )
 
-const AGENT_URL string = "agent601-dev.game.melandworld.com"
-
 func main() {
-	userToken := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IndibzYxdnUiLCJzdWIiOiJ7XCJpZFwiOlwiNzM1XCIsXCJzY2hvb2xJZFwiOlwiMFwiLFwidXNlcm5hbWVcIjpcIndibzYxdnVcIixcIm5pY2tuYW1lXCI6XCJ3OTM0ODA3N1wiLFwicmVhbG5hbWVcIjpcInc5MzQ4MDc3XCIsXCJ1c2VydHlwZVwiOlwiU1RVREVOVFwiLFwic2V4XCI6XCJNQUxFXCIsXCJlbWFpbFwiOlwiXCIsXCJtb2JpbGVcIjpcIlwiLFwiYXZhdGFyXCI6XCJodHRwczovL2JnLXByby53a2NvZGluZy5jb20vZGVmYXVsdF9hdmF0YXItMjAyMTEwMjAucG5nXCIsXCJyZWdpc3RlZEF0XCI6XCIyMDIzLTAzLTI4VDA3OjQwOjU3LjAwMFpcIixcImxhc3RMb2dpbmVkQXRcIjpcIjIwMjMtMDMtMjhUMDc6NDA6NTcuMDAwWlwiLFwibGFzdFVwZGF0ZWRBdFwiOlwiMjAyMy0wMy0yOFQwNzo0MDo1Ny4wMDBaXCIsXCJzdGF0dXNcIjoxfSIsImlhdCI6MTY4MDAwMzEyNCwiZXhwIjoxNjgwNjA3OTI0fQ.VXXOWDts4b-PJ2CJKHLal0IHosuVATL-i9jPW-oT9Zc"
+	clientIdxBegin, err := cast.ToIntE(os.Getenv("CLIENT_IDX_BEGIN"))
+	if err != nil {
+		panic(err)
+	}
+	serviceLog.Init(int64(clientIdxBegin), true)
 
-	cli := client.NewGameClient(AGENT_URL, userToken)
-	cli.Run()
+	testModel := os.Getenv("TEST_MODE")
+	agentUrl := os.Getenv("AGENT_URL")
+	clientNum, err := cast.ToIntE(os.Getenv("CLIENT_NUM"))
+	if err != nil {
+		panic(err)
+	}
+	addCliCdMs := cast.ToInt(os.Getenv("ADD_CLIENT_CD_MS"))
+	if addCliCdMs <= 0 {
+		addCliCdMs = 200
+	}
 
-	time.Sleep(time.Second * 10)
+	wg := new(sync.WaitGroup)
+	for i := 0; i < clientNum; i++ {
+		go func(idx int) {
+			wg.Add(1)
+			cli := client.NewGameClient(testModel, agentUrl, fmt.Sprint(clientIdxBegin+idx), int64(clientIdxBegin+idx))
+			cli.Run()
+			wg.Done()
+		}(i)
+		time.Sleep(time.Millisecond * time.Duration(addCliCdMs))
+	}
+	wg.Wait()
 }

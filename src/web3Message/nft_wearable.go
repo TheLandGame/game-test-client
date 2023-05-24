@@ -53,7 +53,7 @@ func (n *NFT) GetWearablePbData() (isWearable bool, position proto.AvatarPositio
 		return
 	}
 
-	attribute = &proto.AvatarAttribute{Durability: 200}
+	attribute = &proto.AvatarAttribute{}
 	for _, na := range n.Metadata.Attributes {
 		switch na.TraitType {
 		case string(NFTTraitTypesType):

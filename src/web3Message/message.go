@@ -3245,6 +3245,9 @@ func (j *NFT) UnmarshalJSON(b []byte) error {
 	if v, ok := raw["amountOfChange"]; !ok || v == nil {
 		return fmt.Errorf("field amountOfChange: required")
 	}
+	if v, ok := raw["createdAt"]; !ok || v == nil {
+		return fmt.Errorf("field createdAt: required")
+	}
 	if v, ok := raw["id"]; !ok || v == nil {
 		return fmt.Errorf("field id: required")
 	}
@@ -5287,6 +5290,9 @@ type NFT struct {
 	// n>0则表示此次事件导致的nft数量增加n
 	AmountOfChange int `json:"amountOfChange"`
 
+	// CreatedAt corresponds to the JSON schema field "createdAt".
+	CreatedAt int `json:"createdAt"`
+
 	// NFT id
 	Id string `json:"id"`
 
@@ -6310,7 +6316,6 @@ const Web3ServiceActionLearnUserRecipes Web3ServiceAction = "LearnUserRecipes"
 const Web3ServiceActionMergeByRecipe Web3ServiceAction = "MergeByRecipe"
 const Web3ServiceActionMintNFTWithItemId Web3ServiceAction = "MintNFTWithItemId"
 const Web3ServiceActionMintNFTWithItemIdAndUserAddress Web3ServiceAction = "MintNFTWithItemIdAndUserAddress"
-const Web3ServiceActionMintNFTWithMetadata Web3ServiceAction = "MintNFTWithMetadata"
 const Web3ServiceActionUseConsumable Web3ServiceAction = "UseConsumable"
 const Web3ServiceActionUseMELD Web3ServiceAction = "UseMELD"
 
@@ -6613,7 +6618,6 @@ var enumValues_Web3ServiceAction = []interface{}{
 	"MergeByRecipe",
 	"MintNFTWithItemId",
 	"MintNFTWithItemIdAndUserAddress",
-	"MintNFTWithMetadata",
 	"UseConsumable",
 	"UseMELD",
 }
