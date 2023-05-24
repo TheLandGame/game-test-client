@@ -14,9 +14,12 @@
             "env": {
                 //----- model: normal | connect |  ping -----------------
                 "TEST_MODE": "normal",
+                "ADD_CLIENT_CD_MS": "200",
+                // "AGENT_URL": "AGENT_URL=agent601-dev.game.melandworld.com",
                 "AGENT_URL": "192.168.50.171:5700",
+                // "AGENT_URL": "192.168.50.15:5700",
                 "CLIENT_NUM": "1",
-                "CLIENT_IDX_BEGIN": "20000",
+                "CLIENT_IDX_BEGIN": "10000",
             },
             // go 启动参数配置
             "args": [],
