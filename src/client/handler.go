@@ -53,7 +53,7 @@ func (c *GameClient) InitMapElementHandler(packet *net_packet.NetPacket) {
 	for i, e := range resp.Entity {
 		ids[i] = e.TypeId.Id
 	}
-	serviceLog.Info("InitMapElement %+v", ids)
+	// serviceLog.Info("[%d] InitMapElement number %+v", c.userIdx, len(ids))
 }
 
 func (c *GameClient) PingHandler(packet *net_packet.NetPacket) {

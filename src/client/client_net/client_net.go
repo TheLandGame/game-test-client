@@ -96,7 +96,7 @@ func (c *ClientNet) run() {
 }
 
 func (c *ClientNet) onData(data []byte) {
-	serviceLog.Debug("receive data Len[%d] ", len(data))
+	// serviceLog.Debug("receive data Len[%d] ", len(data))
 	netPackets, err := net_packet.ReadPacket(data)
 	if err != nil {
 		serviceLog.Error(err.Error())
@@ -126,7 +126,7 @@ func (c *ClientNet) Send(eType proto.EnvelopeType, msg googleProto.Message) {
 
 	bodyList := net_packet.WritePacket([]*net_packet.NetPacket{packet})
 	for _, body := range bodyList {
-		serviceLog.Debug("Send [%d] body: %+v", eType, body)
+		// serviceLog.Debug("Send [%d] body: %+v", eType, body)
 		err = c.wcConnect.WriteMessage(websocket.BinaryMessage, body)
 		if err != nil {
 			// panic(err)
@@ -157,7 +157,7 @@ func (c *ClientNet) SendTestarr() {
 
 	bodyList := net_packet.WritePacket(packets)
 	for _, body := range bodyList {
-		serviceLog.Debug("Send body: %+v", body)
+		// serviceLog.Debug("Send body: %+v", body)
 		err := c.wcConnect.WriteMessage(websocket.BinaryMessage, body)
 		if err != nil {
 			// panic(err)

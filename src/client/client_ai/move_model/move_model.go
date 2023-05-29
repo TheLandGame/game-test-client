@@ -193,6 +193,7 @@ func (m *MoveModel) SendStopMoveMsg(curMs int64) {
 		Movement: movement,
 	}
 	m.net.Send(proto.EnvelopeType_UpdateSelfLocation, req)
+	m.net.OnSendMsg(proto.EnvelopeType_UpdateSelfLocation, req.ReqTitle.SeqId)
 	m.preSendMsgMs = curMs
 	// serviceLog.Debug("[%d] STOP Move Msg  data: %+v", m.userId, movement)
 }
@@ -204,6 +205,7 @@ func (m *MoveModel) OnUpdateSelfLocationRes(packet *net_packet.NetPacket) {
 		serviceLog.Error(err.Error())
 		return
 	}
+
 	m.net.PrintMsgUsedMs(proto.EnvelopeType(packet.Id), resp.ResTitle.SeqId)
 
 	if resp.ResTitle.ErrorMessage != "" {

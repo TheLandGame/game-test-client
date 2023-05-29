@@ -11,12 +11,12 @@ export TEST_MODE=normal
 export ADD_CLIENT_CD_MS=200
 
 
-export AGENT_URL=agent601-dev.game.melandworld.com
-# export AGENT_URL=192.168.50.171:5700
+# export AGENT_URL=agent601-dev.game.melandworld.com
+export AGENT_URL=192.168.50.171:5700
 # export AGENT_URL=192.168.50.15:5700
 
 # 压测的客户端数量上限
-export CLIENT_NUM=300
+export CLIENT_NUM=1
 
 # 压测的客户端模拟 Id 起始值 
 export CLIENT_IDX_BEGIN=10000
