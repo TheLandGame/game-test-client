@@ -11,6 +11,7 @@ require (
 require (
 	// 使用本地go代码仓库方式: https://zhuanlan.zhihu.com/p/109828249
 	game-message-core v0.0.0
+	github.com/golang/snappy v0.0.4
 	github.com/spf13/cast v1.5.0
 )
 

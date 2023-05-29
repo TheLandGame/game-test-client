@@ -9,6 +9,7 @@ import (
 	"github.com/Meland-Inc/meland-client/src/client/client_net"
 	"github.com/Meland-Inc/meland-client/src/client/client_ping"
 	"github.com/Meland-Inc/meland-client/src/common/matrix"
+	"github.com/Meland-Inc/meland-client/src/common/net/net_packet"
 	"github.com/Meland-Inc/meland-client/src/common/time_helper"
 )
 
@@ -38,8 +39,8 @@ type GameClient struct {
 	userIdx int64
 	token   string
 
-	msgEvent   map[proto.EnvelopeType]func(*proto.Envelope)
-	serMsgChan chan *proto.Envelope
+	msgEvent   map[proto.EnvelopeType]func(*net_packet.NetPacket)
+	serMsgChan chan *net_packet.NetPacket
 
 	playerData UserData
 }
@@ -48,8 +49,8 @@ func NewGameClient(testModel string, agentUrl, token string, userIdx int64) *Gam
 	c := &GameClient{
 		userIdx:    userIdx,
 		token:      token,
-		msgEvent:   make(map[proto.EnvelopeType]func(*proto.Envelope)),
-		serMsgChan: make(chan *proto.Envelope, 512),
+		msgEvent:   make(map[proto.EnvelopeType]func(*net_packet.NetPacket)),
+		serMsgChan: make(chan *net_packet.NetPacket, 512),
 	}
 	if token == "" {
 		c.token = fmt.Sprint(userIdx)
@@ -78,24 +79,35 @@ func (c *GameClient) Run() {
 
 	for {
 		c.tick(time_helper.NowUTCMill())
-		time.Sleep(time.Millisecond * 10)
+		if len(c.serMsgChan) <= 0 {
+			time.Sleep(time.Millisecond * 1)
+		}
 	}
 }
 
-func (c *GameClient) registerMsgHandler(
-	msgType proto.EnvelopeType, handler func(*proto.Envelope),
-) {
-	c.msgEvent[msgType] = handler
+func (c *GameClient) tick(curMs int64) {
+	if c.isStop {
+		return
+	}
+	// defer func ()  {
+	// 	if err := recover();err!=nil{
+	// 		serviceLog.StackError()
+	// 	}
+	// }()
+
+	c.readSerMsg()
+	c.pingTick(curMs)
+	c.logicTick(curMs)
 }
 
-func (c *GameClient) MsgCallBack(msg *proto.Envelope) {
-	c.serMsgChan <- msg
+func (c *GameClient) MsgCallBack(packet *net_packet.NetPacket) {
+	c.serMsgChan <- packet
 }
 
-func (c *GameClient) readMs() {
+func (c *GameClient) readSerMsg() {
 	select {
-	case msg := <-c.serMsgChan:
-		c.onReceiveMsg(msg)
+	case packet := <-c.serMsgChan:
+		c.onReceiveMsg(packet)
 	default:
 	}
 }
@@ -109,15 +121,6 @@ func (c *GameClient) start() {
 func (c *GameClient) stop() {
 	c.isStop = true
 	c.net.Stop()
-}
-
-func (c *GameClient) tick(curMs int64) {
-	if c.isStop {
-		return
-	}
-	c.readMs()
-	c.pingTick(curMs)
-	c.logicTick(curMs)
 }
 
 func (c *GameClient) pingTick(curMs int64) {

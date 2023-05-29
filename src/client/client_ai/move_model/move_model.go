@@ -2,10 +2,13 @@ package move_model
 
 import (
 	"game-message-core/proto"
+	"game-message-core/protoTool"
 
 	"github.com/Meland-Inc/meland-client/src/client/client_net"
 	"github.com/Meland-Inc/meland-client/src/common/matrix"
+	"github.com/Meland-Inc/meland-client/src/common/net/net_packet"
 	"github.com/Meland-Inc/meland-client/src/common/random"
+	"github.com/Meland-Inc/meland-client/src/common/serviceLog"
 )
 
 var birthPos *matrix.Vector3 = &matrix.Vector3{X: 793, Y: 69, Z: 683}
@@ -162,15 +165,11 @@ func (m *MoveModel) SendMoveMsg(curMs int64) {
 		},
 	}
 
-	reqMsg := &proto.Envelope{
-		Type: proto.EnvelopeType_UpdateSelfLocation,
-		Payload: &proto.Envelope_UpdateSelfLocationRequest{
-			UpdateSelfLocationRequest: &proto.UpdateSelfLocationRequest{
-				Movement: movement,
-			},
-		},
+	req := &proto.UpdateSelfLocationReq{
+		ReqTitle: &proto.ReqTitle{SeqId: m.net.NextSeqId()},
+		Movement: movement,
 	}
-	m.net.Send(reqMsg)
+	m.net.Send(proto.EnvelopeType_UpdateSelfLocation, req)
 	m.preSendMsgMs = curMs
 
 	// serviceLog.Debug("[%d] sendMoveMsg  data: %+v", m.userId, movement)
@@ -189,19 +188,28 @@ func (m *MoveModel) SendStopMoveMsg(curMs int64) {
 		},
 	}
 
-	reqMsg := &proto.Envelope{
-		Type: proto.EnvelopeType_UpdateSelfLocation,
-		Payload: &proto.Envelope_UpdateSelfLocationRequest{
-			UpdateSelfLocationRequest: &proto.UpdateSelfLocationRequest{
-				Movement: movement,
-			},
-		},
+	req := &proto.UpdateSelfLocationReq{
+		ReqTitle: &proto.ReqTitle{SeqId: m.net.NextSeqId()},
+		Movement: movement,
 	}
-	m.net.Send(reqMsg)
+	m.net.Send(proto.EnvelopeType_UpdateSelfLocation, req)
 	m.preSendMsgMs = curMs
 	// serviceLog.Debug("[%d] STOP Move Msg  data: %+v", m.userId, movement)
 }
 
-func (m *MoveModel) OnUpdateSelfLocationRes(msg *proto.Envelope) {
+func (m *MoveModel) OnUpdateSelfLocationRes(packet *net_packet.NetPacket) {
+	resp := &proto.UpdateSelfLocationResp{}
+	err := protoTool.UnmarshalProto(packet.Body, resp)
+	if err != nil {
+		serviceLog.Error(err.Error())
+		return
+	}
+	m.net.PrintMsgUsedMs(proto.EnvelopeType(packet.Id), resp.ResTitle.SeqId)
 
+	if resp.ResTitle.ErrorMessage != "" {
+		serviceLog.Error(
+			"cli[%d] msg[%v] %s \n",
+			m.userId, proto.EnvelopeType(packet.Id), resp.ResTitle.ErrorMessage,
+		)
+	}
 }

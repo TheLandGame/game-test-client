@@ -7,25 +7,24 @@ import (
 )
 
 func (c *GameClient) SingIn() {
-	reqMsg := &proto.Envelope{
-		Type: proto.EnvelopeType_SigninPlayer,
-		Payload: &proto.Envelope_SigninPlayerRequest{
-			SigninPlayerRequest: &proto.SigninPlayerRequest{
-				Token:      c.token,
-				ClientTime: time_helper.NowUTCMill(),
-				// SceneServiceAppId: "game-service-world-5",
-			},
-		},
+	// sceneServiceAppId := "game-service-world-735"
+	sceneServiceAppId := ""
+
+	req := &proto.SigninPlayerReq{
+		ReqTitle:          &proto.ReqTitle{SeqId: c.net.NextSeqId()},
+		Token:             c.token,
+		ClientTime:        time_helper.NowUTCMill(),
+		Reconnect:         false,
+		SceneServiceAppId: sceneServiceAppId,
 	}
-	c.net.Send(reqMsg)
+	c.net.Send(proto.EnvelopeType_SigninPlayer, req)
+	c.net.OnSendMsg(proto.EnvelopeType_SigninPlayer, req.ReqTitle.SeqId)
 }
 
 func (c *GameClient) EnterMap() {
-	reqMsg := &proto.Envelope{
-		Type: proto.EnvelopeType_EnterMap,
-		Payload: &proto.Envelope_EnterMapRequest{
-			EnterMapRequest: &proto.EnterMapRequest{},
-		},
+	req := &proto.EnterMapReq{
+		ReqTitle: &proto.ReqTitle{SeqId: c.net.NextSeqId()},
 	}
-	c.net.Send(reqMsg)
+	c.net.Send(proto.EnvelopeType_EnterMap, req)
+	c.net.OnSendMsg(proto.EnvelopeType_EnterMap, req.ReqTitle.SeqId)
 }
