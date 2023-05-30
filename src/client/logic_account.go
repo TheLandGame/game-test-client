@@ -5,31 +5,24 @@ import (
 	"game-message-core/proto"
 )
 
-
-
 func (c *GameClient) QueryUser() {
-	reqMsg := &proto.Envelope{
-		Type: proto.EnvelopeType_QueryPlayer,
-		Payload: &proto.Envelope_QueryPlayerRequest{
-			QueryPlayerRequest: &proto.QueryPlayerRequest{
-				Token: c.token,
-			},
-		},
+	req := &proto.QueryPlayerReq{
+		ReqTitle: &proto.ReqTitle{SeqId: c.net.NextSeqId()},
+		Token:    c.token,
 	}
-	c.net.Send(reqMsg)
+	c.net.Send(proto.EnvelopeType_QueryPlayer, req)
+	c.net.OnSendMsg(proto.EnvelopeType_QueryPlayer, req.ReqTitle.SeqId)
 }
 
 func (c *GameClient) CreateUser() {
-	reqMsg := &proto.Envelope{
-		Type: proto.EnvelopeType_CreatePlayer,
-		Payload: &proto.Envelope_CreatePlayerRequest{
-			CreatePlayerRequest: &proto.CreatePlayerRequest{
-				Token:    c.token,
-				NickName: fmt.Sprintf("TEST_%d", c.userIdx),
-				Icon:     "icon_avatar",
-				RoleId:   1,
-			},
-		},
+	req := &proto.CreatePlayerReq{
+		ReqTitle: &proto.ReqTitle{SeqId: c.net.NextSeqId()},
+		Token:    c.token,
+		NickName: fmt.Sprintf("TEST_%d", c.userIdx),
+		RoleId:   1,
+		Gender:   "man",
+		Icon:     "icon_avatar",
 	}
-	c.net.Send(reqMsg)
+	c.net.Send(proto.EnvelopeType_CreatePlayer, req)
+	c.net.OnSendMsg(proto.EnvelopeType_CreatePlayer, req.ReqTitle.SeqId)
 }
