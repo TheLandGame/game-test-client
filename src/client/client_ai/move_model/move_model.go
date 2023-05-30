@@ -202,15 +202,14 @@ func (m *MoveModel) OnUpdateSelfLocationRes(packet *net_packet.NetPacket) {
 	resp := &proto.UpdateSelfLocationResp{}
 	err := protoTool.UnmarshalProto(packet.Body, resp)
 	if err != nil {
-		serviceLog.Error(err.Error())
+		serviceLog.Error("Type:%v err: %v", proto.EnvelopeType(packet.Id), err.Error())
 		return
 	}
 
 	m.net.PrintMsgUsedMs(proto.EnvelopeType(packet.Id), resp.ResTitle.SeqId)
 
 	if resp.ResTitle.ErrorMessage != "" {
-		serviceLog.Error(
-			"cli[%d] msg[%v] %s \n",
+		serviceLog.Error("cli[%d] msg[%v] %s \n",
 			m.userId, proto.EnvelopeType(packet.Id), resp.ResTitle.ErrorMessage,
 		)
 	}

@@ -45,14 +45,14 @@ func (c *GameClient) InitMapElementHandler(packet *net_packet.NetPacket) {
 	resp := &proto.BroadCastInitMapElementResp{}
 	err := protoTool.UnmarshalProto(packet.Body, resp)
 	if err != nil {
-		serviceLog.Error(err.Error())
+		serviceLog.Error("Type:%v err: %v", proto.EnvelopeType(packet.Id), err.Error())
 		return
 	}
 
-	ids := make([]int64, len(resp.Entity))
-	for i, e := range resp.Entity {
-		ids[i] = e.TypeId.Id
-	}
+	// ids := make([]int64, len(resp.Entity))
+	// for i, e := range resp.Entity {
+	// 	ids[i] = e.TypeId.Id
+	// }
 	// serviceLog.Info("[%d] InitMapElement number %+v", c.userIdx, len(ids))
 }
 
@@ -64,15 +64,14 @@ func (c *GameClient) QueryPlayerHandler(packet *net_packet.NetPacket) {
 	resp := &proto.QueryPlayerResp{}
 	err := protoTool.UnmarshalProto(packet.Body, resp)
 	if err != nil {
-		serviceLog.Error(err.Error())
+		serviceLog.Error("Type:%v err: %v", proto.EnvelopeType(packet.Id), err.Error())
 		return
 	}
 
 	c.net.PrintMsgUsedMs(proto.EnvelopeType(packet.Id), resp.ResTitle.SeqId)
 
 	if resp.ResTitle.ErrorMessage != "" {
-		serviceLog.Error(
-			"cli[%d] msg[%v] %s \n",
+		serviceLog.Error("cli[%d] msg[%v] %s \n",
 			c.userIdx, proto.EnvelopeType(packet.Id), resp.ResTitle.ErrorMessage,
 		)
 		c.stop()
@@ -92,15 +91,14 @@ func (c *GameClient) CreatePlayerHandler(packet *net_packet.NetPacket) {
 	resp := &proto.CreatePlayerResp{}
 	err := protoTool.UnmarshalProto(packet.Body, resp)
 	if err != nil {
-		serviceLog.Error(err.Error())
+		serviceLog.Error("Type:%v err: %v", proto.EnvelopeType(packet.Id), err.Error())
 		return
 	}
 
 	c.net.PrintMsgUsedMs(proto.EnvelopeType(packet.Id), resp.ResTitle.SeqId)
 
 	if resp.ResTitle.ErrorMessage != "" {
-		serviceLog.Error(
-			"cli[%d] msg[%v] %s \n",
+		serviceLog.Error("cli[%d] msg[%v] %s \n",
 			c.userIdx, proto.EnvelopeType(packet.Id), resp.ResTitle.ErrorMessage,
 		)
 		c.stop()
@@ -116,15 +114,14 @@ func (c *GameClient) SigninPlayerHandler(packet *net_packet.NetPacket) {
 	resp := &proto.SigninPlayerResp{}
 	err := protoTool.UnmarshalProto(packet.Body, resp)
 	if err != nil {
-		serviceLog.Error(err.Error())
+		serviceLog.Error("Type:%v err: %v", proto.EnvelopeType(packet.Id), err.Error())
 		return
 	}
 
 	c.net.PrintMsgUsedMs(proto.EnvelopeType(packet.Id), resp.ResTitle.SeqId)
 
 	if resp.ResTitle.ErrorMessage != "" {
-		serviceLog.Error(
-			"cli[%d] msg[%v] %s \n",
+		serviceLog.Error("cli[%d] msg[%v] %s \n",
 			c.userIdx, proto.EnvelopeType(packet.Id), resp.ResTitle.ErrorMessage,
 		)
 		c.stop()
@@ -145,13 +142,12 @@ func (c *GameClient) EnterMapHandler(packet *net_packet.NetPacket) {
 	resp := &proto.EnterMapResp{}
 	err := protoTool.UnmarshalProto(packet.Body, resp)
 	if err != nil {
-		serviceLog.Error(err.Error())
+		serviceLog.Error("Type:%v err: %v", proto.EnvelopeType(packet.Id), err.Error())
 		return
 	}
 	c.net.PrintMsgUsedMs(proto.EnvelopeType(packet.Id), resp.ResTitle.SeqId)
 	if resp.ResTitle.ErrorMessage != "" {
-		serviceLog.Error(
-			"cli[%d] msg[%v] %s \n",
+		serviceLog.Error("cli[%d] msg[%v] %s \n",
 			c.userIdx, proto.EnvelopeType(packet.Id), resp.ResTitle.ErrorMessage,
 		)
 		c.stop()

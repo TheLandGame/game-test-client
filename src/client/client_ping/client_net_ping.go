@@ -37,7 +37,7 @@ func (c *ClientPing) OnResPing(packet *net_packet.NetPacket) {
 	resp := &proto.PingResp{}
 	err := protoTool.UnmarshalProto(packet.Body, resp)
 	if err != nil {
-		serviceLog.Error(err.Error())
+		serviceLog.Error("Type:%v err: %v", proto.EnvelopeType(packet.Id), err.Error())
 		return
 	}
 	c.net.PrintMsgUsedMs(proto.EnvelopeType(packet.Id), resp.ResTitle.SeqId)

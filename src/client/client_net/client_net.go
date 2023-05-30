@@ -99,7 +99,7 @@ func (c *ClientNet) onData(data []byte) {
 	// serviceLog.Debug("receive data Len[%d] ", len(data))
 	netPackets, err := net_packet.ReadPacket(data)
 	if err != nil {
-		serviceLog.Error(err.Error())
+		serviceLog.Error("clientNet Ondata err: %s", err.Error())
 		return
 	}
 
@@ -115,7 +115,7 @@ func (c *ClientNet) Send(eType proto.EnvelopeType, msg googleProto.Message) {
 
 	bs, err := protoTool.MarshalProto(msg)
 	if err != nil {
-		serviceLog.Error(err.Error())
+		serviceLog.Error("Send Type:%v err:", eType, err.Error())
 		return
 	}
 
@@ -135,36 +135,33 @@ func (c *ClientNet) Send(eType proto.EnvelopeType, msg googleProto.Message) {
 	}
 }
 
-func (c *ClientNet) SendTestarr() {
-	packets := []*net_packet.NetPacket{}
-	for i := int32(1); i <= 5; i++ {
-		req := &proto.PingReq{
-			ReqTitle: &proto.ReqTitle{SeqId: i},
-		}
-
-		bs, err := protoTool.MarshalProto(req)
-		if err != nil {
-			serviceLog.Error(err.Error())
-			return
-		}
-
-		packet := net_packet.GetPool().Get()
-		packet.Id = uint32(proto.EnvelopeType_Ping)
-		packet.Length = len(bs)
-		packet.Body = bs
-		packets = append(packets, packet)
-	}
-
-	bodyList := net_packet.WritePacket(packets)
-	for _, body := range bodyList {
-		// serviceLog.Debug("Send body: %+v", body)
-		err := c.wcConnect.WriteMessage(websocket.BinaryMessage, body)
-		if err != nil {
-			// panic(err)
-			serviceLog.Error("userIdx[%d] eType[%v] WriteMessage failed  err: %v", c.userId, err.Error())
-		}
-	}
-}
+// func (c *ClientNet) SendTestarr() {
+// 	packets := []*net_packet.NetPacket{}
+// 	for i := int32(1); i <= 5; i++ {
+// 		req := &proto.PingReq{
+// 			ReqTitle: &proto.ReqTitle{SeqId: i},
+// 		}
+// 		bs, err := protoTool.MarshalProto(req)
+// 		if err != nil {
+// 			serviceLog.Error(err.Error())
+// 			return
+// 		}
+// 		packet := net_packet.GetPool().Get()
+// 		packet.Id = uint32(proto.EnvelopeType_Ping)
+// 		packet.Length = len(bs)
+// 		packet.Body = bs
+// 		packets = append(packets, packet)
+// 	}
+// 	bodyList := net_packet.WritePacket(packets)
+// 	for _, body := range bodyList {
+// 		// serviceLog.Debug("Send body: %+v", body)
+// 		err := c.wcConnect.WriteMessage(websocket.BinaryMessage, body)
+// 		if err != nil {
+// 			// panic(err)
+// 			serviceLog.Error("userIdx[%d] eType[%v] WriteMessage failed  err: %v", c.userId, err.Error())
+// 		}
+// 	}
+// }
 
 func (c *ClientNet) OnSendMsg(eType proto.EnvelopeType, seqId int32) {
 	if c.userId%10000 != 0 {
