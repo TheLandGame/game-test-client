@@ -8,7 +8,7 @@ import (
 	"github.com/Meland-Inc/meland-client/src/client/client_ai"
 	"github.com/Meland-Inc/meland-client/src/client/client_net"
 	"github.com/Meland-Inc/meland-client/src/client/client_ping"
-	"github.com/Meland-Inc/meland-client/src/common/matrix"
+	"github.com/Meland-Inc/meland-client/src/client/data_model"
 	"github.com/Meland-Inc/meland-client/src/common/net/net_packet"
 	"github.com/Meland-Inc/meland-client/src/common/time_helper"
 )
@@ -16,33 +16,25 @@ import (
 type TestModel string
 
 const (
-	TEST_MODE_NORMAL  = "normal"
-	TEST_MODE_CONNECT = "connect"
-	TEST_MODE_PING    = "ping"
+	TEST_MODE_NORMAL        = "normal"
+	TEST_MODE_CONNECT       = "connect"
+	TEST_MODE_PING          = "ping"
+	TEST_MODE_GET_MAIN_DATA = "main-data"
 )
-
-type UserData struct {
-	baseData  *proto.PlayerBaseData
-	sceneData *proto.Player
-	mapId     int32
-	Pos       *matrix.Vector3
-	Dir       *matrix.Vector3
-}
 
 type GameClient struct {
 	model     TestModel
 	net       client_net.ClientNet
 	pingModel client_ping.ClientPing
 	client_ai.ClientAiModel
-	isStop bool
+	data_model.UserDataModel
 
+	isStop  bool
 	userIdx int64
 	token   string
 
 	msgEvent   map[proto.EnvelopeType]func(*net_packet.NetPacket)
 	serMsgChan chan *net_packet.NetPacket
-
-	playerData UserData
 }
 
 func NewGameClient(testModel string, agentUrl, token string, userIdx int64) *GameClient {
@@ -65,11 +57,11 @@ func NewGameClient(testModel string, agentUrl, token string, userIdx int64) *Gam
 		c.model = TEST_MODE_NORMAL
 	}
 
-	c.ClientAiModel.SetState(client_ai.USER_STATE_READY)
-
 	c.InitMsgHandler()
 	c.net.Init(agentUrl, c.token, c.userIdx, c.MsgCallBack)
 	c.pingModel.Init(&c.net)
+	c.ClientAiModel.SetState(client_ai.USER_STATE_READY)
+	c.UserDataModel.Init(&c.net)
 	return c
 }
 
@@ -122,6 +114,7 @@ func (c *GameClient) start() {
 	}
 	c.QueryUser()
 }
+
 func (c *GameClient) stop() {
 	c.isStop = true
 	c.net.Stop()
@@ -135,8 +128,10 @@ func (c *GameClient) pingTick(curMs int64) {
 }
 
 func (c *GameClient) logicTick(curMs int64) {
-	if c.model != TEST_MODE_NORMAL {
-		return
+	switch c.model {
+	case TEST_MODE_NORMAL:
+		c.ClientAiModel.Tick(curMs)
+	case TEST_MODE_GET_MAIN_DATA:
+		c.UserDataModel.Tick(curMs)
 	}
-	c.ClientAiModel.Tick(curMs)
 }

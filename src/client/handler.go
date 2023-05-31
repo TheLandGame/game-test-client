@@ -39,6 +39,9 @@ func (c *GameClient) InitMsgHandler() {
 	c.registerMsgHandler(proto.EnvelopeType_UpdateSelfLocation, c.UpdateSelfLocationHandler)
 	c.registerMsgHandler(proto.EnvelopeType_BroadCastInitMapElement, c.InitMapElementHandler)
 
+	c.registerMsgHandler(proto.EnvelopeType_ItemGet, c.UserDataModel.LoadItemHandler)
+	c.registerMsgHandler(proto.EnvelopeType_BroadCastInitItem, c.UserDataModel.InitItemHandler)
+
 }
 
 func (c *GameClient) InitMapElementHandler(packet *net_packet.NetPacket) {
@@ -81,7 +84,7 @@ func (c *GameClient) QueryPlayerHandler(packet *net_packet.NetPacket) {
 	if resp.Player == nil || resp.Player.UserId <= 0 {
 		c.CreateUser() // create player
 	} else {
-		c.playerData.baseData = resp.Player
+
 		// 登录
 		c.SingIn()
 	}
@@ -105,7 +108,6 @@ func (c *GameClient) CreatePlayerHandler(packet *net_packet.NetPacket) {
 		return
 	}
 
-	c.playerData.baseData = resp.Player
 	// 登录
 	c.SingIn()
 }
@@ -128,13 +130,14 @@ func (c *GameClient) SigninPlayerHandler(packet *net_packet.NetPacket) {
 		return
 	}
 
-	c.playerData.sceneData = resp.Player
+	c.UserDataModel.SetBaseData(resp.Player.BaseData)
 	time_helper.SetTimeOffsetMs(resp.ServerTime - resp.ClientTime)
 
 	if resp.SceneServiceAppId == "" {
 		serviceLog.Error("cli[%d] 无效 scene appId  \n", c.userIdx)
 		c.stop()
 	}
+
 	c.EnterMap()
 }
 
@@ -154,30 +157,31 @@ func (c *GameClient) EnterMapHandler(packet *net_packet.NetPacket) {
 		return
 	}
 
-	c.playerData.sceneData = resp.Me
-	c.playerData.mapId = resp.Location.MapId
-	c.playerData.Pos = &matrix.Vector3{
-		X: float64(resp.Location.Loc.X),
-		Y: float64(resp.Location.Loc.Y),
-		Z: float64(resp.Location.Loc.Z),
-	}
-	c.playerData.Dir = &matrix.Vector3{
-		X: float64(resp.Me.Dir.X),
-		Y: float64(resp.Me.Dir.Y),
-		Z: float64(resp.Me.Dir.Z),
-	}
-
 	var spd float32 = 5.0
-	for _, aid := range c.playerData.sceneData.Profile {
+	for _, aid := range resp.Me.Profile {
 		if client_ai.AttributeId(aid.Id) == client_ai.Attribute_MoveSpd {
 			spd = float32(aid.Value) / 100.0 // 移动速度配置单位 CM 转换为 M
 			break
 		}
 	}
+	c.UserDataModel.SetSceneData(resp.Me)
+	c.UserDataModel.MapId = resp.Location.MapId
+	c.UserDataModel.Pos = &matrix.Vector3{
+		X: float64(resp.Location.Loc.X),
+		Y: float64(resp.Location.Loc.Y),
+		Z: float64(resp.Location.Loc.Z),
+	}
+	c.UserDataModel.Dir = &matrix.Vector3{
+		X: float64(resp.Me.Dir.X),
+		Y: float64(resp.Me.Dir.Y),
+		Z: float64(resp.Me.Dir.Z),
+	}
 
 	c.ClientAiModel.Init(
-		&c.net, c.playerData.baseData.UserId,
-		c.playerData.mapId, c.playerData.Pos, c.playerData.Dir, spd,
+		&c.net, resp.Me.BaseData.UserId,
+		resp.Location.MapId, c.UserDataModel.Pos,
+		c.UserDataModel.Pos,
+		spd,
 	)
 }
 

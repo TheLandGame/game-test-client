@@ -20,7 +20,9 @@ type ClientAiModel struct {
 }
 
 func (ai *ClientAiModel) Init(
-	net *client_net.ClientNet, userId int64, mapId int32, pos, dir *matrix.Vector3, userSpd float32,
+	net *client_net.ClientNet, userId int64,
+	mapId int32, pos, dir *matrix.Vector3,
+	userSpd float32,
 ) {
 	ai.net = net
 	ai.MoveModel.SetNet(net)
@@ -42,11 +44,6 @@ func (ai *ClientAiModel) SetState(state UserState) {
 func (ai *ClientAiModel) Tick(curMs int64) {
 	switch ai.state {
 	case USER_STATE_READY:
-		// if curMs-ai.startMs > 3000 {
-		// 	ai.state = USER_STATE_IDLE
-		// 	ai.startIdleMs = curMs
-		// 	serviceLog.Debug("user[%d] USER_STATE_READY  ->  USER_STATE_IDLE", ai.userId)
-		// }
 
 	case USER_STATE_IDLE:
 		if curMs-ai.startIdleMs < 3000 {
