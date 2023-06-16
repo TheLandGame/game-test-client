@@ -5,6 +5,7 @@ import (
 	"game-message-core/protoTool"
 
 	"github.com/Meland-Inc/meland-client/src/client/client_ai"
+	"github.com/Meland-Inc/meland-client/src/client/data_model"
 	"github.com/Meland-Inc/meland-client/src/common/matrix"
 	"github.com/Meland-Inc/meland-client/src/common/net/net_packet"
 	"github.com/Meland-Inc/meland-client/src/common/serviceLog"
@@ -41,6 +42,10 @@ func (c *GameClient) InitMsgHandler() {
 
 	c.registerMsgHandler(proto.EnvelopeType_ItemGet, c.UserDataModel.LoadItemHandler)
 	c.registerMsgHandler(proto.EnvelopeType_BroadCastInitItem, c.UserDataModel.InitItemHandler)
+
+	c.registerMsgHandler(proto.EnvelopeType_QueryTalentExp, c.UserDataModel.LoadTalentExpHandler)
+	c.registerMsgHandler(proto.EnvelopeType_QueryAnimalList, c.UserDataModel.LoadHomeAnimalListHandler)
+	c.registerMsgHandler(proto.EnvelopeType_QueryGranary, c.UserDataModel.QueryGranaryHandler)
 
 }
 
@@ -136,9 +141,12 @@ func (c *GameClient) SigninPlayerHandler(packet *net_packet.NetPacket) {
 	if resp.SceneServiceAppId == "" {
 		serviceLog.Error("cli[%d] 无效 scene appId  \n", c.userIdx)
 		c.stop()
+		return
 	}
 
+	c.UserDataModel.SetState(data_model.DATA_MODEL_STATE_RUNNING)
 	c.EnterMap()
+
 }
 
 func (c *GameClient) EnterMapHandler(packet *net_packet.NetPacket) {

@@ -12,12 +12,13 @@
             "program": "${fileDirname}"
             // 设置依赖的环境变量
             "env": {
-                //----- model: normal | connect |  ping -----------------
-                "TEST_MODE": "normal",
+                //----- model: normal | connect |  ping | main-data -----------------
+                "TEST_MODE": "main-data",
                 "ADD_CLIENT_CD_MS": "200",
                 // "AGENT_URL": "AGENT_URL=agent601-dev.game.melandworld.com",
                 "AGENT_URL": "192.168.50.171:5700",
                 // "AGENT_URL": "192.168.50.15:5700",
+                "DEFAULT_SCENE_SER": "game-service-world-735",
                 "CLIENT_NUM": "1",
                 "CLIENT_IDX_BEGIN": "10000",
             },

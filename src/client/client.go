@@ -16,10 +16,10 @@ import (
 type TestModel string
 
 const (
-	TEST_MODE_NORMAL        = "normal"
-	TEST_MODE_CONNECT       = "connect"
-	TEST_MODE_PING          = "ping"
-	TEST_MODE_GET_MAIN_DATA = "main-data"
+	TEST_MODE_NORMAL    = "normal"
+	TEST_MODE_CONNECT   = "connect"
+	TEST_MODE_PING      = "ping"
+	TEST_MODE_MAIN_DATA = "main-data"
 )
 
 type GameClient struct {
@@ -53,6 +53,8 @@ func NewGameClient(testModel string, agentUrl, token string, userIdx int64) *Gam
 		c.model = TEST_MODE_CONNECT
 	case string(TEST_MODE_PING):
 		c.model = TEST_MODE_PING
+	case string(TEST_MODE_MAIN_DATA):
+		c.model = TEST_MODE_MAIN_DATA
 	default:
 		c.model = TEST_MODE_NORMAL
 	}
@@ -109,7 +111,7 @@ func (c *GameClient) readSerMsg() {
 }
 
 func (c *GameClient) start() {
-	if c.model != TEST_MODE_NORMAL {
+	if c.model == TEST_MODE_CONNECT || c.model == TEST_MODE_PING {
 		return
 	}
 	c.QueryUser()
@@ -131,7 +133,7 @@ func (c *GameClient) logicTick(curMs int64) {
 	switch c.model {
 	case TEST_MODE_NORMAL:
 		c.ClientAiModel.Tick(curMs)
-	case TEST_MODE_GET_MAIN_DATA:
+	case TEST_MODE_MAIN_DATA:
 		c.UserDataModel.Tick(curMs)
 	}
 }

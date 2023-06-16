@@ -22,6 +22,10 @@ func (c *GameClient) SingIn() {
 }
 
 func (c *GameClient) EnterMap() {
+	if c.model != TEST_MODE_NORMAL {
+		return
+	}
+
 	req := &proto.EnterMapReq{
 		ReqTitle: &proto.ReqTitle{SeqId: c.net.NextSeqId()},
 	}
