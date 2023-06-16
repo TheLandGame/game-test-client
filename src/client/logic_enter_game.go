@@ -2,13 +2,13 @@ package client
 
 import (
 	"game-message-core/proto"
+	"os"
 
 	"github.com/Meland-Inc/meland-client/src/common/time_helper"
 )
 
 func (c *GameClient) SingIn() {
-	// sceneServiceAppId := "game-service-world-735"
-	sceneServiceAppId := ""
+	sceneServiceAppId := os.Getenv("DEFAULT_SCENE_SER")
 
 	req := &proto.SigninPlayerReq{
 		ReqTitle:          &proto.ReqTitle{SeqId: c.net.NextSeqId()},

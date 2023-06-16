@@ -101,6 +101,10 @@ func (c *GameClient) tick(curMs int64) {
 }
 
 func (c *GameClient) MsgCallBack(packet *net_packet.NetPacket) {
+	// if len(c.serMsgChan) > 5 && c.userIdx%10000 == 0 {
+	// 	serviceLog.Warning("userIdx:%v serMsgChan len %d  > 5", c.userIdx, len(c.serMsgChan))
+	// }
+
 	c.serMsgChan <- packet
 }
 

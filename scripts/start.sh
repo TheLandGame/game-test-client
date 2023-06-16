@@ -15,8 +15,14 @@ export ADD_CLIENT_CD_MS=200
 export AGENT_URL=192.168.50.171:5700
 # export AGENT_URL=192.168.50.15:5700
 
+
+# 默认连接的scene service appid 
+# 为空 则使用manager service 下发的 scene service
+# e.g: game-service-world-735
+export DEFAULT_SCENE_SER="" 
+
 # 压测的客户端数量上限
-export CLIENT_NUM=1
+export CLIENT_NUM=700
 
 # 压测的客户端模拟 Id 起始值 
 export CLIENT_IDX_BEGIN=10000
