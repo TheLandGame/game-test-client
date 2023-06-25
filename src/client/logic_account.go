@@ -22,6 +22,13 @@ func (c *GameClient) CreateUser() {
 		RoleId:   1,
 		Gender:   "man",
 		Icon:     "icon_avatar",
+		Feature: &proto.PlayerFeature{
+			Eyebrow: 123,
+			Eye:     133,
+			Hair:    162,
+			Pants:   145,
+			Skin:    109,
+		},
 	}
 	c.net.Send(proto.EnvelopeType_CreatePlayer, req)
 	c.net.OnSendMsg(proto.EnvelopeType_CreatePlayer, req.ReqTitle.SeqId)
