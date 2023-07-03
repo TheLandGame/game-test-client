@@ -20,6 +20,7 @@
                 // "AGENT_URL": "192.168.50.15:5700",
                 "CLIENT_NUM": "1",
                 "CLIENT_IDX_BEGIN": "10000",
+                "DEFAULT_SCENE_SER": "",
             },
             // go 启动参数配置
             "args": [],
